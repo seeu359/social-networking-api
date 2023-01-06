@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from datetime import date
+
+from pydantic import BaseModel
 
 
 class BaseUser(BaseModel):
@@ -28,5 +29,5 @@ class CreateUser(BaseUser):
 
 class Token(BaseModel):
 
-    token: str
+    access_token: str
     token_type: str = 'bearer'
