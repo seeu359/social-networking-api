@@ -27,6 +27,7 @@ def create_user(
 @router.post(
     path='/login',
     response_model=schemes.Token,
+    status_code=status.HTTP_200_OK,
 )
 def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -41,7 +42,8 @@ def login_user(
 
 @router.get(
     path='/me',
-    response_model=schemes.User
+    response_model=schemes.User,
+    status_code=status.HTTP_200_OK
 )
 def get_self_user(
         user: schemes.User = Depends(get_current_user)

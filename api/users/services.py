@@ -85,7 +85,7 @@ class UserServices:
 
     def __init__(self, session: Session = Depends(get_session)):
 
-        self.session: Session = session
+        self.session = session
 
     def create_user(self, user_data: schemes.CreateUser) -> schemes.Token:
 
