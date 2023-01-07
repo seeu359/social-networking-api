@@ -1,18 +1,16 @@
 from datetime import datetime, timedelta
 
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.exc import IntegrityError
 from fastapi import Depends, HTTPException, status
-from pydantic import ValidationError
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from loguru import logger
 from passlib.hash import bcrypt
+from pydantic import ValidationError
+from sqlalchemy.exc import IntegrityError
 
 from api.db import Session, get_session
-from api import models
 from api.settings import settings
-from api.users import schemes
-
+from api.users import models, schemes
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/login/')
 
@@ -39,7 +37,7 @@ class UserServices:
                 key=settings.secret_key,
                 algorithms=settings.algorithm,
             )
-        except JWTError as e:
+        except JWTError:
             raise exception
 
         user_data = payload.get('user')

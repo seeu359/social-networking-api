@@ -1,12 +1,8 @@
 from datetime import date
 
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base
 
-from api.db import engine
-
-
-Base = declarative_base()
+from api import Base
 
 
 class User(Base):
@@ -21,6 +17,3 @@ class User(Base):
     email = sa.Column(sa.String, unique=True, nullable=False)
     hidden = sa.Column(sa.Boolean, default=False)
     created_at = sa.Column(sa.Date, default=date.today())
-
-
-Base.metadata.create_all(engine)

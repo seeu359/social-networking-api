@@ -3,3 +3,6 @@ run:
 
 sort:
 	poetry run isort .
+
+lint:
+	poetry run flake8

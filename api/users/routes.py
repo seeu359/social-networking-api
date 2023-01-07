@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
+from loguru import logger
 
 from api.users import schemes
 from api.users.services import UserServices, get_current_user
@@ -42,6 +43,9 @@ def login_user(
     path='/me',
     response_model=schemes.User
 )
-def get_self_user(user: schemes.User = Depends(get_current_user)) -> schemes.User:
-
+def get_self_user(
+        user: schemes.User = Depends(get_current_user)
+) -> schemes.User:
+    a = user
+    logger.info(a)
     return user
