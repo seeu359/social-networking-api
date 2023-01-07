@@ -69,7 +69,7 @@ def update_post(
 
 @router.delete(
     path='/{post_id}',
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_post(
         post_id: int = None,
@@ -78,3 +78,44 @@ def delete_post(
 ) -> list:
 
     return post_service.delete_post(user.id, post_id)
+
+
+@router.put(
+    path='/{post_id}/like',
+    status_code=status.HTTP_200_OK,
+    response_model=schemes.Post,
+)
+def like(
+        post_id: int,
+        user: User = Depends(get_current_user),
+        post_service: PostService = Depends(),
+) -> schemes.Post:
+
+    return post_service.put_like(user.id, post_id)
+
+
+@router.put(
+    path='/{post_id}/dislike',
+    status_code=status.HTTP_200_OK,
+    response_model=schemes.Post,
+)
+def dislike(
+        post_id: int = None,
+        user: User = Depends(get_current_user),
+        post_service: PostService = Depends(),
+):
+    return post_service.put_dislike(user.id, post_id)
+
+
+@router.get(
+    path='/{post_id}/like',
+    status_code=status.HTTP_200_OK,
+    response_model=list[User],
+)
+def post_likes(
+        post_id: int = None,
+        user: User = Depends(get_current_user),
+        post_service: PostService = Depends(),
+) -> list[User] | list:
+
+    return post_service.get_post_likes(post_id)

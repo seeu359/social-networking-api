@@ -11,6 +11,8 @@ class Post(BaseModel):
     post_body: str
     created_at: datetime
     hidden: bool
+    likes: int
+    dislikes: int
 
     class Config:
 
