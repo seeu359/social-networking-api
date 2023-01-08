@@ -14,6 +14,9 @@ jobs:
         with:
           python-version: ^3.9.6
       - name: Install dependencies
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           pip install poetry
           make install
