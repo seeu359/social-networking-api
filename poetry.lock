@@ -604,7 +604,7 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "41d9efdd1c4ada29767f65635781283e9e590fcc4854258a8ecf062db1d472dd"
+content-hash = "c82e900eeed89207977cdef77f6f81b6abb40e85cdcc94ffc5cd5f42835dd151"
 
 [metadata.files]
 aiosqlite = [
