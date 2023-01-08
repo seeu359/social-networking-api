@@ -3,8 +3,6 @@ from datetime import date
 import sqlalchemy as sa
 
 from api import Base
-from api.db import Session
-from api.posts.models import UserLikes
 
 
 class User(Base):

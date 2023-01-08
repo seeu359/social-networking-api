@@ -3,8 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from api.settings import settings
 
-db_connect = settings.database_prefix + str(settings.base_dir) + '/db.sqlite3'
-engine = create_engine(db_connect)
+engine = create_engine(settings.database_url)
 
 Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 

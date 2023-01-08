@@ -29,11 +29,13 @@ class PostService:
             query(models.Post).\
             filter(models.Post.id == post_id).\
             first()
+
         if not post:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='The post was not found',
             )
+
         return post
 
     def create_post(
@@ -60,6 +62,7 @@ class PostService:
             or_(models.Post.hidden == 0,
                 models.Post.user_id == user_id
                 )).all()
+
         return [schemes.Post.from_orm(post) for post in posts]
 
     def get_post(self, user_id: int, post_id: int):
@@ -85,10 +88,12 @@ class PostService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='The post was not found',
             )
+
         if post.user_id == user_id:
             self.session.delete(post)
             self.session.commit()
             return list()
+
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

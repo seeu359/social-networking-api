@@ -19,6 +19,7 @@ bcrypt = "^4.0.1"
 cryptography = "^39.0.0"
 jose = "^1.0.0"
 passlib = "^1.7.4"
+pydantic = {extras = ["email"], version = "^1.10.4"}
 
 
 [tool.poetry.group.dev.dependencies]

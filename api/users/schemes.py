@@ -1,6 +1,6 @@
 from datetime import date
-
-from pydantic import BaseModel
+from fastapi import HTTPException, status
+from pydantic import BaseModel, validator, EmailStr
 
 
 class BaseUser(BaseModel):
@@ -8,7 +8,18 @@ class BaseUser(BaseModel):
     first_name: str
     last_name: str
     username: str
-    email: str
+    email: EmailStr
+
+    @validator('first_name', 'last_name',)
+    def validate_name(cls, value: str):
+
+        if not value.isalpha():
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail='First name and last name must contains only letters'
+            )
+        else:
+            return value
 
 
 class User(BaseUser):

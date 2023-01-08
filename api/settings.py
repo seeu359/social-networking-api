@@ -8,7 +8,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
 
-    database_prefix: str
+    database_url: str
     secret_key: str
     algorithm: str = 'HS256'
     expiration: int = 5000
