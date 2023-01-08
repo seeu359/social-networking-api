@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["a.cheremushkin <a.ch3re359@yandex.ru>"]
 readme = "README.md"
-packages = [{include = "social_network_api"}]
+packages = [{include = "api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
