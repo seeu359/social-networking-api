@@ -54,7 +54,7 @@ class PostService:
         post_scheme = schemes.Post.from_orm(post)
         return post_scheme
 
-    def get_all_posts(self, user_id: int) -> list[schemes.Post]:
+    def get_all_posts(self, user_id: int) -> list[schemes.Post] | list[...]:
         """Return list of Posts, besides posts which hidden field is True.
         Posts which have hidden field is True, can view only friends.
         """
@@ -62,6 +62,9 @@ class PostService:
             or_(models.Post.hidden == 0,
                 models.Post.user_id == user_id
                 )).all()
+
+        if not posts:
+            return list()
 
         return [schemes.Post.from_orm(post) for post in posts]
 

@@ -19,7 +19,7 @@ router = APIRouter(
 def get_posts(
         user: User = Depends(get_current_user),
         post_services: PostService = Depends()
-) -> list[schemes.Post]:
+) -> list[schemes.Post] | list[...]:
 
     return post_services.get_all_posts(user.id)
 
