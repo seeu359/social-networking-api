@@ -59,7 +59,7 @@ class PostService:
         Posts which have hidden field is True, can view only friends.
         """
         posts = self.session.query(models.Post).where(
-            or_(models.Post.hidden == 0,
+            or_(models.Post.hidden is False,
                 models.Post.user_id == user_id
                 )).all()
 
