@@ -1,6 +1,6 @@
 import loguru
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from loguru import logger
 
 from api.db import Session, get_session
@@ -215,9 +215,9 @@ class PostService:
         self._get_post(post_id)
 
         post_likes = self.session.\
-            query(models.UserLikes).\
-            filter(models.UserLikes.like == 1,
-                   models.UserLikes.post_id == post_id).\
+            query(models.UserLikes).where(
+             and_(models.UserLikes.like == True,
+                  models.UserLikes.post_id == post_id)).\
             all()
         logger.info(post_likes)
 
