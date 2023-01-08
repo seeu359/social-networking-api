@@ -1,12 +1,12 @@
 import loguru
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import or_, and_
 from loguru import logger
+from sqlalchemy import and_, or_
 
 from api.db import Session, get_session
 from api.posts import models, schemes
-from api.users.schemes import User as UserSchema
 from api.users.models import User as UserDB
+from api.users.schemes import User as UserSchema
 
 
 class PostService:
@@ -59,7 +59,7 @@ class PostService:
         Posts which have hidden field is True, can view only friends.
         """
         posts = self.session.query(models.Post).where(
-            or_(models.Post.hidden == False,
+            or_(models.Post.hidden == False,  # noqa: E712
                 models.Post.user_id == user_id
                 )).all()
 
@@ -216,7 +216,7 @@ class PostService:
 
         post_likes = self.session.\
             query(models.UserLikes).where(
-             and_(models.UserLikes.like == True,
+             and_(models.UserLikes.like == True,  # noqa: E712
                   models.UserLikes.post_id == post_id)).\
             all()
         logger.info(post_likes)

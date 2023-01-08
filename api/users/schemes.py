@@ -1,6 +1,7 @@
 from datetime import date
+
 from fastapi import HTTPException, status
-from pydantic import BaseModel, validator, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 
 
 class BaseUser(BaseModel):

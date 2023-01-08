@@ -88,7 +88,7 @@ class UserServices:
         self.session = session
 
     def create_user(self, user_data: schemes.CreateUser) -> schemes.Token:
-
+        print(user_data)
         user = models.User(
             first_name=user_data.first_name,
             last_name=user_data.last_name,

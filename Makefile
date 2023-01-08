@@ -6,3 +6,9 @@ sort:
 
 lint:
 	poetry run flake8
+
+test:
+	poetry run pytest tests
+
+install:
+	poetry install
