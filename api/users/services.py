@@ -12,7 +12,7 @@ from api.db import Session, get_session
 from api.settings import settings
 from api.users import models, schemes
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/login/')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/login')
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
