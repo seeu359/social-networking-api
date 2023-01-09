@@ -4,7 +4,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from api.db import get_session
-from main import app
+from api.main import app
 from api.settings import settings
 from api.users.services import get_current_user
 from tests.conftest import (MockValidUser, get_mock_session,
