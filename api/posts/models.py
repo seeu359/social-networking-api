@@ -1,12 +1,9 @@
 from datetime import datetime
 
 import sqlalchemy as sa
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.orm import relationship
 
 from api import Base
-from api.db import engine, Session
-from api.users.models import User
-
 
 like_refs = sa.Table(
     'like_ref',

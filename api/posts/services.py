@@ -1,7 +1,5 @@
-import loguru
 from fastapi import Depends, HTTPException, status
-from loguru import logger
-from sqlalchemy import and_, or_
+from sqlalchemy import or_
 
 from api.db import Session, get_session
 from api.posts import models, schemes
@@ -12,7 +10,6 @@ from api.users.schemes import User as UserSchema
 class PostService:
 
     def __init__(self, session: Session = Depends(get_session)):
-
 
         self.session = session
 
@@ -32,7 +29,8 @@ class PostService:
 
     @classmethod
     def get_post_scheme(
-            cls, post_orm: models.Post, likes_count: int = 0, dislikes_count: int = 0,
+            cls, post_orm: models.Post, likes_count: int = 0,
+            dislikes_count: int = 0,
     ) -> schemes.Post:
 
         return schemes.Post(
@@ -219,7 +217,9 @@ class PostService:
 
         post = self._get_post(post_id)
         users_id = [like.user_id for like in post.likes]
-        users = self.session.query(UserDB).filter(UserDB.id.in_(users_id)).all()
+        users = self.session.query(UserDB).filter(
+            UserDB.id.in_(users_id)
+        ).all()
 
         return [UserSchema.from_orm(user) for user in users]
 
@@ -227,6 +227,8 @@ class PostService:
 
         post = self._get_post(post_id)
         users_id = [dislike.user_id for dislike in post.dislikes]
-        users = self.session.query(UserDB).filter(UserDB.id.in_(users_id)).all()
+        users = self.session.query(UserDB).filter(
+            UserDB.id.in_(users_id)
+        ).all()
 
         return [UserSchema.from_orm(user) for user in users]

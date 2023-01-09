@@ -9,9 +9,9 @@ from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 
 from api.db import Session, get_session
+from api.posts import models as post_models
 from api.settings import settings
 from api.users import models, schemes
-from api.posts import models
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/login')
 
@@ -90,8 +90,8 @@ class UserServices:
 
     def _create_like_and_dislike(self, user_id):
 
-        like = models.Like(user_id=user_id)
-        dislike = models.Dislike(user_id=user_id)
+        like = post_models.Like(user_id=user_id)
+        dislike = post_models.Dislike(user_id=user_id)
         self.session.add_all([like, dislike])
         self.session.commit()
 

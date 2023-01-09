@@ -9,7 +9,6 @@ from api.settings import settings
 from api.users.services import get_current_user
 from tests.conftest import MockValidUser, MockValidUser2, get_mock_session
 
-
 app.dependency_overrides[get_session] = get_mock_session
 
 client = TestClient(app)
