@@ -12,3 +12,6 @@ test:
 
 install:
 	poetry install
+
+test-coverage:
+	poetry run pytest --cov=api tests/ --cov-report xml
