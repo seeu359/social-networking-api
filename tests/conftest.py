@@ -50,7 +50,8 @@ class MockValidUser2:
         self.email = 'test2@mail.ru'
 
 
-def mock_current_invalid_user():
+def mock_current_invalid_user() -> dict:
+
     return {
         'id': 1,
         'first_name': 'invalid name',
@@ -70,6 +71,18 @@ def mock_create_user_data() -> dict:
         'last_name': 'Chere',
         'username': 'testuser',
         'email': 'test@mail.ru',
+        'password': 'topsecret',
+    }
+
+
+@pytest.fixture
+def mock_create_user_data2() -> dict:
+
+    return {
+        'first_name': 'John',
+        'last_name': 'Chere',
+        'username': 'testuser2',
+        'email': 'test2@mail.ru',
         'password': 'topsecret',
     }
 

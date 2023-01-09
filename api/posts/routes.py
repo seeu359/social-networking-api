@@ -119,3 +119,17 @@ def post_likes(
 ) -> list[User] | list:
 
     return post_service.get_post_likes(post_id)
+
+
+@router.get(
+    path='/{post_id}/dislike',
+    status_code=status.HTTP_200_OK,
+    response_model=list[User],
+)
+def post_dislikes(
+        post_id: int = None,
+        user: User = Depends(get_current_user),
+        post_service: PostService = Depends(),
+) -> list[User] | list:
+
+    return post_service.get_post_dislikes(post_id)

@@ -4,18 +4,20 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from api.db import get_session
-from api.main import app
+from main import app
 from api.settings import settings
 from api.users.services import get_current_user
 from tests.conftest import MockValidUser, MockValidUser2, get_mock_session
 
+
 app.dependency_overrides[get_session] = get_mock_session
-app.dependency_overrides[get_current_user] = MockValidUser
 
 client = TestClient(app)
 
 
 def test_create_post(test_post_data):
+
+    app.dependency_overrides[get_current_user] = MockValidUser
 
     response = client.post(
         'posts/create',
@@ -27,6 +29,8 @@ def test_create_post(test_post_data):
 
 
 def test_update_post(test_post_data):
+
+    app.dependency_overrides[get_current_user] = MockValidUser
 
     post = client.post(
         'posts/create',
@@ -51,6 +55,7 @@ def test_update_post(test_post_data):
 
 
 def test_update_post_that_is_not_your_own(test_post_data):
+    app.dependency_overrides[get_current_user] = MockValidUser
 
     post = client.post(
         '/posts/create',
@@ -65,13 +70,13 @@ def test_update_post_that_is_not_your_own(test_post_data):
         json=test_post_data,
     )
 
-    app.dependency_overrides[get_current_user] = MockValidUser
     os.remove(settings.test_database_path)
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_get_all_posts(test_post_data):
 
+    app.dependency_overrides[get_current_user] = MockValidUser
     post_count = 3
 
     for _ in range(3):
@@ -91,6 +96,7 @@ def test_get_all_posts(test_post_data):
 
 def test_delete_post(test_post_data):
 
+    app.dependency_overrides[get_current_user] = MockValidUser
     post_count = 4
 
     for i in range(post_count):
@@ -116,6 +122,8 @@ def test_delete_post(test_post_data):
 
 def test_delete_post_that_is_not_your_own(test_post_data):
 
+    app.dependency_overrides[get_current_user] = MockValidUser
+
     post = client.post(
         '/posts/create',
         json=test_post_data
@@ -129,12 +137,13 @@ def test_delete_post_that_is_not_your_own(test_post_data):
         '/posts/{}'.format(post_id),
     )
 
-    app.dependency_overrides[get_current_user] = MockValidUser
     os.remove(settings.test_database_path)
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_put_like_and_dislike_to_own_post(test_post_data):
+
+    app.dependency_overrides[get_current_user] = MockValidUser
 
     post = client.post(
         '/posts/create',
@@ -157,6 +166,8 @@ def test_put_like_and_dislike_to_own_post(test_post_data):
 
 def test_put_like_and_dislike(test_post_data):
 
+    app.dependency_overrides[get_current_user] = MockValidUser
+
     post = client.post(
         '/posts/create',
         json=test_post_data
@@ -177,7 +188,7 @@ def test_put_like_and_dislike(test_post_data):
         '/posts/{}/dislike'.format(post_id)
     )
 
+    os.remove(settings.test_database_path)
     assert response_dislike.status_code == status.HTTP_200_OK
     assert response_dislike.json()['dislikes'] == 1
     assert response_dislike.json()['likes'] == 0
-    os.remove(settings.test_database_path)

@@ -210,7 +210,7 @@ class PostService:
                 self.session.commit()
                 return schemes.Post.from_orm(post)
 
-    def get_post_likes(self, post_id: int) -> list[UserSchema] | list[...]:
+    def get_post_likes(self, post_id: int) -> list[UserSchema] | list:
 
         self._get_post(post_id)
 
@@ -229,5 +229,30 @@ class PostService:
         users = self.session.query(UserDB).filter(
             UserDB.id.in_(users_id)
         ).all()
+
+        print(self.session.query(UserDB).all())
+
+        return [UserSchema.from_orm(user) for user in users]
+
+    def get_post_dislikes(self, post_id: int) -> list[UserSchema] | list:
+
+        self._get_post(post_id)
+
+        post_dislikes = self.session.\
+            query(models.UserLikes).where(
+             and_(models.UserLikes.dislike == True,  # noqa: E712
+                  models.UserLikes.post_id == post_id)).\
+            all()
+
+        if not post_dislikes:
+
+            return list()
+
+        users_id = [user.user_id for user in post_dislikes]
+
+        users = self.session.query(UserDB).\
+            filter(
+            UserDB.id.in_(users_id)).\
+            all()
 
         return [UserSchema.from_orm(user) for user in users]
