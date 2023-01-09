@@ -13,15 +13,39 @@ class PostService:
 
     def __init__(self, session: Session = Depends(get_session)):
 
+
         self.session = session
 
-    def _get_users_rate(self, user_id: int, post_id: int):
+    def _get_user_like_and_dislike(
+            self, user_id
+    ) -> tuple[models.Like, models.Dislike]:
 
-        return self.session.query(models.UserLikes). \
-            filter(
-            models.UserLikes.user_id == user_id,
-            models.UserLikes.post_id == post_id,
-        ).first()
+        like = self.session.query(
+            models.Like
+        ).where(models.Like.user_id == user_id).first()
+
+        dislike = self.session.query(
+            models.Dislike
+        ).where(models.Dislike.user_id == user_id).first()
+
+        return like, dislike
+
+    @classmethod
+    def get_post_scheme(
+            cls, post_orm: models.Post, likes_count: int = 0, dislikes_count: int = 0,
+    ) -> schemes.Post:
+
+        return schemes.Post(
+            id=post_orm.id,
+            author_id=post_orm.user_id,
+            title=post_orm.title,
+            user_id=post_orm.user_id,
+            post_body=post_orm.post_body,
+            created_at=post_orm.created_at,
+            hidden=post_orm.hidden,
+            likes=likes_count,
+            dislikes=dislikes_count,
+        )
 
     def _get_post(self, post_id: int) -> models.Post:
 
@@ -48,17 +72,19 @@ class PostService:
             post_body=post_data.post_body,
             hidden=post_data.hidden,
         )
+
         self.session.add(post)
         self.session.commit()
 
-        post_scheme = schemes.Post.from_orm(post)
+        post_scheme = self.get_post_scheme(post)
+
         return post_scheme
 
     def get_all_posts(self, user_id: int) -> list[schemes.Post] | list[...]:
         """Return list of Posts, besides posts which hidden field is True.
         Posts which have hidden field is True, can view only friends.
         """
-        posts = self.session.query(models.Post).where(
+        posts: list[models.Post] = self.session.query(models.Post).where(
             or_(models.Post.hidden == False,  # noqa: E712
                 models.Post.user_id == user_id
                 )).all()
@@ -66,7 +92,9 @@ class PostService:
         if not posts:
             return list()
 
-        return [schemes.Post.from_orm(post) for post in posts]
+        return [self.get_post_scheme(
+            post, post.likes_count(), post.dislikes_count()
+        ) for post in posts]
 
     def get_post(self, user_id: int, post_id: int):
 
@@ -74,13 +102,17 @@ class PostService:
 
         if post.hidden:
             if user_id == post_id:
-                return schemes.Post.from_orm(post)
+                return self.get_post_scheme(
+                    post, post.likes_count(), post.dislikes_count()
+                )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='You have no permission to view this post',
             )
 
-        return schemes.Post.from_orm(post)
+        return self.get_post_scheme(
+            post, post.likes_count(), post.dislikes_count()
+        )
 
     def delete_post(self, user_id: int, post_id: int) -> list:
 
@@ -93,6 +125,7 @@ class PostService:
             )
 
         if post.user_id == user_id:
+            post.clear_refs()
             self.session.delete(post)
             self.session.commit()
             return list()
@@ -114,7 +147,9 @@ class PostService:
             post.post_body = post_data.post_body
             post.hidden = post_data.hidden
             self.session.commit()
-            return schemes.Post.from_orm(post)
+            return self.get_post_scheme(
+                post, post.likes_count(), post.dislikes_count(),
+            )
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -125,134 +160,73 @@ class PostService:
 
         post = self._get_post(post_id)
 
+        users_like, users_dislike = self._get_user_like_and_dislike(user_id)
+
         if user_id == post.user_id:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='It is impossible to rate your own posts'
             )
 
-        users_rate = self._get_users_rate(user_id, post_id)
-        loguru.logger.info(users_rate)
+        if users_like in post.likes:
 
-        if not users_rate:
-
-            like = models.UserLikes(
-                user_id=user_id,
-                post_id=post_id,
-                like=True,
-                dislike=False,
-            )
-            post.likes += 1
-            self.session.add(like)
-            loguru.logger.info(schemes.Post.from_orm(post))
+            post.likes.remove(users_like)
             self.session.commit()
-            return schemes.Post.from_orm(post)
+            return self.get_post_scheme(
+                post, post.likes_count(), post.dislikes_count()
+            )
 
-        else:
+        if users_dislike in post.dislikes:
 
-            if users_rate.like:
+            post.dislikes.remove(users_dislike)
 
-                self.session.delete(users_rate)
-                post.likes -= 1
-                self.session.commit()
-                return schemes.Post.from_orm(post)
-
-            if users_rate.dislike:
-
-                users_rate.like = True
-                users_rate.dislike = False
-                post.likes += 1
-                post.dislikes -= 1
-                self.session.commit()
-                return schemes.Post.from_orm(post)
+        post.likes.append(users_like)
+        self.session.commit()
+        return self.get_post_scheme(
+            post, post.likes_count(), post.dislikes_count()
+        )
 
     def put_dislike(self, user_id: int, post_id: int) -> schemes.Post:
 
         post = self._get_post(post_id)
 
+        users_like, users_dislike = self._get_user_like_and_dislike(user_id)
+
         if user_id == post.user_id:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='It is impossible to rate your own posts'
             )
 
-        users_rate = self._get_users_rate(user_id, post_id)
+        if users_dislike in post.dislikes:
 
-        if not users_rate:
-
-            dislike = models.UserLikes(
-                user_id=user_id,
-                post_id=post_id,
-                like=False,
-                dislike=True,
-            )
-            post.dislikes += 1
-            self.session.add(dislike)
-            loguru.logger.info(schemes.Post.from_orm(post))
+            post.dislikes.remove(users_dislike)
             self.session.commit()
-            return schemes.Post.from_orm(post)
+            return self.get_post_scheme(
+                post, post.likes_count(), post.dislikes_count()
+            )
+        if users_like in post.likes:
 
-        else:
+            post.likes.remove(users_like)
 
-            if users_rate.like:
-
-                users_rate.dislike = True
-                users_rate.like = False
-                post.dislikes += 1
-                post.likes -= 1
-                self.session.commit()
-                return schemes.Post.from_orm(post)
-
-            if users_rate.dislike:
-
-                self.session.delete(users_rate)
-                post.dislikes -= 1
-                self.session.commit()
-                return schemes.Post.from_orm(post)
+        post.dislikes.append(users_dislike)
+        self.session.commit()
+        return self.get_post_scheme(
+            post, post.likes_count(), post.dislikes_count()
+        )
 
     def get_post_likes(self, post_id: int) -> list[UserSchema] | list:
 
-        self._get_post(post_id)
-
-        post_likes = self.session.\
-            query(models.UserLikes).where(
-             and_(models.UserLikes.like == True,  # noqa: E712
-                  models.UserLikes.post_id == post_id)).\
-            all()
-        logger.info(post_likes)
-
-        if not post_likes:
-            return list()
-
-        users_id = [user.user_id for user in post_likes]
-        logger.info(users_id)
-        users = self.session.query(UserDB).filter(
-            UserDB.id.in_(users_id)
-        ).all()
-
-        print(self.session.query(UserDB).all())
+        post = self._get_post(post_id)
+        users_id = [like.user_id for like in post.likes]
+        users = self.session.query(UserDB).filter(UserDB.id.in_(users_id)).all()
 
         return [UserSchema.from_orm(user) for user in users]
 
     def get_post_dislikes(self, post_id: int) -> list[UserSchema] | list:
 
-        self._get_post(post_id)
-
-        post_dislikes = self.session.\
-            query(models.UserLikes).where(
-             and_(models.UserLikes.dislike == True,  # noqa: E712
-                  models.UserLikes.post_id == post_id)).\
-            all()
-
-        if not post_dislikes:
-
-            return list()
-
-        users_id = [user.user_id for user in post_dislikes]
-
-        users = self.session.query(UserDB).\
-            filter(
-            UserDB.id.in_(users_id)).\
-            all()
+        post = self._get_post(post_id)
+        users_id = [dislike.user_id for dislike in post.dislikes]
+        users = self.session.query(UserDB).filter(UserDB.id.in_(users_id)).all()
 
         return [UserSchema.from_orm(user) for user in users]

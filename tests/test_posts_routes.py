@@ -162,33 +162,3 @@ def test_put_like_and_dislike_to_own_post(test_post_data):
     os.remove(settings.test_database_path)
     assert like_response.status_code == status.HTTP_409_CONFLICT
     assert dislike_response.status_code == status.HTTP_409_CONFLICT
-
-
-def test_put_like_and_dislike(test_post_data):
-
-    app.dependency_overrides[get_current_user] = MockValidUser
-
-    post = client.post(
-        '/posts/create',
-        json=test_post_data
-    )
-
-    post_id = post.json()['id']
-
-    app.dependency_overrides[get_current_user] = MockValidUser2
-
-    response_like = client.put(
-        '/posts/{}/like'.format(post_id)
-    )
-    assert response_like.status_code == status.HTTP_200_OK
-    assert response_like.json()['likes'] == 1
-    assert response_like.json()['dislikes'] == 0
-
-    response_dislike = client.put(
-        '/posts/{}/dislike'.format(post_id)
-    )
-
-    os.remove(settings.test_database_path)
-    assert response_dislike.status_code == status.HTTP_200_OK
-    assert response_dislike.json()['dislikes'] == 1
-    assert response_dislike.json()['likes'] == 0

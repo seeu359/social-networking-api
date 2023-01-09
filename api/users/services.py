@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from api.db import Session, get_session
 from api.settings import settings
 from api.users import models, schemes
+from api.posts import models
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/login')
 
@@ -87,8 +88,15 @@ class UserServices:
 
         self.session = session
 
+    def _create_like_and_dislike(self, user_id):
+
+        like = models.Like(user_id=user_id)
+        dislike = models.Dislike(user_id=user_id)
+        self.session.add_all([like, dislike])
+        self.session.commit()
+
     def create_user(self, user_data: schemes.CreateUser) -> schemes.Token:
-        print(user_data)
+
         user = models.User(
             first_name=user_data.first_name,
             last_name=user_data.last_name,
@@ -100,6 +108,7 @@ class UserServices:
         try:
             self.session.add(user)
             self.session.commit()
+
         except IntegrityError:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -107,6 +116,7 @@ class UserServices:
             )
 
         token = self.create_jwt_token(user)
+        self._create_like_and_dislike(user.id)
 
         return token
 

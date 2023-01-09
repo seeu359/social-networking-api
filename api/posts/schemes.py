@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class Post(BaseModel):
 
     id: int
-    author: int = Field(alias='user_id')
+    author_id: int
     title: str
     post_body: str
     created_at: datetime
