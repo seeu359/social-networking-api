@@ -35,7 +35,7 @@ CRUD for posts, and give posts likes and dislikes
 
 HUNTER_API_KEY = key for hunter.io API. Is used to verify email. If HUNTER_API_KEY is None no verify will be made.
 
-Example file with environment variables = .env.example
+Example file with environment variables - .env.example
 
 #### Settings file
 > ./api/settings.py
@@ -81,17 +81,18 @@ Routes that begin from ``*`` require authorization
 * ``last_name`` - must contain only letters
 * ``username``
 * ``email`` - You must enter valid email. If environment variables "HUNTER_API_KEY" is not None email will be checked by hunter.io service.
+* ``password``
 
 Response codes:
-201 - Successfully created
-422 - Validation Error
+
+``201`` - Successfully created
+
+``422`` - Validation Error
 
 Response will contain JWT Token ``access_token`` which can be used for access to resources that require authorization
 > {'access_token': 'token', 'token_type': 'bearer'}
 
-``GET /users/login`` - login by username and password
-
-Response also contains JWT TOKEN in field ``access_token``
+``GET /users/login`` - login by username and password. Response also contains JWT TOKEN in field ``access_token``
 
 Response codes:
 
@@ -143,7 +144,7 @@ Response codes:
 
 ``422`` - Validation error
 
-``*PUT /posts/{post_id}`` - Update post by entered ``post_id``. User can only change post his own posts. Success response contains updated post. Request body:
+``*PUT /posts/{post_id}`` - Update post by entered ``post_id``. User can only change his own posts. Success response contains updated post. Request body:
 
 * ``title`` - post title
 * ``post_body`` - body of post
@@ -155,13 +156,13 @@ Response codes:
 
 ``401`` - Not authenticated
 
-``403`` - Attempt to delete not own post
+``403`` - Attempt to update not own post
 
 ``404`` - Post was not found
 
 ``422`` - Validation error
 
-``*DELETE /posts/{post_id}`` - Delete post by entered ``post_id``. User can only delete post his own posts. Success response contains empty response body.
+``*DELETE /posts/{post_id}`` - Delete post by entered ``post_id``. User can only delete his own posts. Success response contains empty response body.
 
 Response codes:
 
@@ -203,6 +204,8 @@ Response codes:
 
 ``404`` - Post was not found
 
+``409`` - Attempt to like own post
+
 ``*PUT /posts/{post_id}/dislike`` - Put dislike to post by entered ``post_id``. If you dislike this post before, dislike will be removed. If you liked this post before - like will be removed, dislike will be added.
 
 Response codes:
@@ -212,3 +215,5 @@ Response codes:
 ``401`` - Not authenticated
 
 ``404`` - Post was not found
+
+``409`` - Attempt to dislike own post
