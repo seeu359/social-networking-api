@@ -1,6 +1,5 @@
 ## Webtronics social network API
 
----
 #### Linter and tests checks
 
 [![code-check](https://github.com/seeu359/social-networking-api/actions/workflows/test_and_linter_check.yaml/badge.svg)](https://github.com/seeu359/social-networking-api/actions/workflows/test_and_linter_check.yaml)
