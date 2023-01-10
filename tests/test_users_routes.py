@@ -29,7 +29,7 @@ def test_not_valid_user_data():
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-def test_create_and_login_user(mock_create_user_data, mock_create_user_data2):
+def test_create_user(mock_create_user_data, mock_create_user_data2):
 
     app.dependency_overrides[get_session] = get_mock_session
 

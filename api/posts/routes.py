@@ -21,6 +21,14 @@ def get_posts(
         post_services: PostService = Depends()
 ) -> list[schemes.Post] | list[...]:
 
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Response contains all posts which hidden fields is False
+    """
+
     return post_services.get_all_posts(user.id)
 
 
@@ -34,6 +42,13 @@ def get_post(
         user: User = Depends(get_current_user),
         post_services: PostService = Depends(),
 ) -> schemes.Post:
+    """
+        *Authenticated required
+
+        Request must contain header "Authorization: Bearer {your JWT Token}"
+
+        The response contains post by passed id
+    """
 
     return post_services.get_post(user.id, post_id)
 
@@ -48,6 +63,14 @@ def create_post(
         user: User = Depends(get_current_user),
         post_services: PostService = Depends(),
 ) -> schemes.Post:
+
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Create new post
+    """
 
     return post_services.create_post(post, user.id)
 
@@ -64,6 +87,14 @@ def update_post(
         post_services: PostService = Depends(),
 ) -> schemes.Post:
 
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Response contains updated post. Post can only be updated by its creator
+    """
+
     return post_services.update_post(post_data, user.id, post_id)
 
 
@@ -76,6 +107,14 @@ def delete_post(
         user: User = Depends(get_current_user),
         post_service: PostService = Depends(),
 ) -> list:
+    """
+        *Authenticated required
+
+        Request must contain header "Authorization: Bearer {your JWT Token}"
+
+        Response - empty body if deleting was successful.
+        Post can only be deleted by its creator
+        """
 
     return post_service.delete_post(user.id, post_id)
 
@@ -90,6 +129,16 @@ def like(
         user: User = Depends(get_current_user),
         post_service: PostService = Depends(),
 ) -> schemes.Post:
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Response contains updated post. Is not possible rate your own posts.
+    If you have been liked earlier, a second request will remove like from
+    post. If you have been disliked earlier, a second request will remove
+    dislike and will put like.
+    """
 
     return post_service.put_like(user.id, post_id)
 
@@ -104,6 +153,17 @@ def dislike(
         user: User = Depends(get_current_user),
         post_service: PostService = Depends(),
 ):
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Response contains updated post. Is not possible rate your own posts.
+    If you have been dislike earlier, a second request will remove dislike
+    from post.
+    If you have been liked earlier, a second request will remove
+    like and will put dislike.
+    """
     return post_service.put_dislike(user.id, post_id)
 
 
@@ -118,6 +178,14 @@ def post_likes(
         post_service: PostService = Depends(),
 ) -> list[ConstructUser] | list:
 
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Response contains all users who put like on post by id from path operation
+    """
+
     return post_service.get_post_likes(post_id)
 
 
@@ -131,5 +199,13 @@ def post_dislikes(
         user: User = Depends(get_current_user),
         post_service: PostService = Depends(),
 ) -> list[ConstructUser] | list:
+    """
+    *Authenticated required
+
+    Request must contain header "Authorization: Bearer {your JWT Token}"
+
+    Response contains all users who put dislike on post by id from path
+    operation
+    """
 
     return post_service.get_post_dislikes(post_id)
