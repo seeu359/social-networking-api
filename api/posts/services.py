@@ -1,15 +1,20 @@
+from loguru import logger
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import or_
 
 from api.db import Session, get_session
 from api.posts import models, schemes
 from api.users.models import User as UserDB
-from api.users.schemes import User as UserSchema
+from api.users.schemes import ConstructUser
+from api.cache import cache
 
 
 class PostService:
 
-    def __init__(self, session: Session = Depends(get_session)):
+    def __init__(
+            self,
+            session: Session = Depends(get_session),
+    ):
 
         self.session = session
 
@@ -75,6 +80,7 @@ class PostService:
         self.session.commit()
 
         post_scheme = self.get_post_scheme(post)
+        cache.update('posts', post_scheme)
 
         return post_scheme
 
@@ -82,6 +88,11 @@ class PostService:
         """Return list of Posts, besides posts which hidden field is True.
         Posts which have hidden field is True, can view only friends.
         """
+        if cache.get('posts'):
+
+            logger.info('return data from cache')
+            return cache.get('posts')
+
         posts: list[models.Post] = self.session.query(models.Post).where(
             or_(models.Post.hidden == False,  # noqa: E712
                 models.Post.user_id == user_id
@@ -90,9 +101,13 @@ class PostService:
         if not posts:
             return list()
 
-        return [self.get_post_scheme(
+        posts = [self.get_post_scheme(
             post, post.likes_count(), post.dislikes_count()
         ) for post in posts]
+
+        cache.set('posts', posts, 60)
+        logger.info('set cache and return data from db')
+        return posts
 
     def get_post(self, user_id: int, post_id: int):
 
@@ -157,7 +172,6 @@ class PostService:
     def put_like(self, user_id: int, post_id: int) -> schemes.Post:
 
         post = self._get_post(post_id)
-
         users_like, users_dislike = self._get_user_like_and_dislike(user_id)
 
         if user_id == post.user_id:
@@ -169,7 +183,9 @@ class PostService:
         if users_like in post.likes:
 
             post.likes.remove(users_like)
+            cache.delete('post{}_likes'.format(post_id))
             self.session.commit()
+
             return self.get_post_scheme(
                 post, post.likes_count(), post.dislikes_count()
             )
@@ -179,6 +195,11 @@ class PostService:
             post.dislikes.remove(users_dislike)
 
         post.likes.append(users_like)
+
+        cache.delete(
+            'post{}_likes'.format(post_id), 'post{}_dislikes'.format(post_id)
+        )
+
         self.session.commit()
         return self.get_post_scheme(
             post, post.likes_count(), post.dislikes_count()
@@ -199,31 +220,50 @@ class PostService:
         if users_dislike in post.dislikes:
 
             post.dislikes.remove(users_dislike)
+            cache.delete('post{}_dislikes'.format(post_id))
             self.session.commit()
             return self.get_post_scheme(
                 post, post.likes_count(), post.dislikes_count()
             )
-        if users_like in post.likes:
 
+        if users_like in post.likes:
             post.likes.remove(users_like)
 
         post.dislikes.append(users_dislike)
+
+        cache.delete(
+            'post{}_likes'.format(post_id), 'post{}_dislikes'.format(post_id)
+        )
+
         self.session.commit()
         return self.get_post_scheme(
             post, post.likes_count(), post.dislikes_count()
         )
 
-    def get_post_likes(self, post_id: int) -> list[UserSchema] | list:
+    def get_post_likes(self, post_id: int) -> list[ConstructUser] | list:
+        if cache.get('post{}_likes'.format(post_id)):
+
+            logger.info('return data from cache value')
+            return cache.get('post{}_likes'.format(post_id))
 
         post = self._get_post(post_id)
         users_id = [like.user_id for like in post.likes]
+
         users = self.session.query(UserDB).filter(
             UserDB.id.in_(users_id)
         ).all()
 
-        return [UserSchema.from_orm(user) for user in users]
+        users_schemes = [ConstructUser.from_orm(user) for user in users]
+        cache.set('post{}_likes'.format(post_id), users_schemes, 60)
+        logger.info('set data to cache and return data from db')
 
-    def get_post_dislikes(self, post_id: int) -> list[UserSchema] | list:
+        return users_schemes
+
+    def get_post_dislikes(self, post_id: int) -> list[ConstructUser] | list:
+        if cache.get('post{}_dislikes'.format(post_id)):
+
+            logger.info('return data from cache')
+            return cache.get('post{}_dislikes'.format(post_id))
 
         post = self._get_post(post_id)
         users_id = [dislike.user_id for dislike in post.dislikes]
@@ -231,4 +271,8 @@ class PostService:
             UserDB.id.in_(users_id)
         ).all()
 
-        return [UserSchema.from_orm(user) for user in users]
+        users_schemes = [ConstructUser.from_orm(user) for user in users]
+        cache.set('post{}_dislikes'.format(post_id), users_schemes, 1000)
+
+        logger.info('set data to cache and return data from db')
+        return users_schemes

@@ -8,6 +8,7 @@ from api.main import app
 from api.settings import settings
 from api.users.services import get_current_user
 from tests.conftest import MockValidUser, MockValidUser2, get_mock_session
+from api.cache import cache
 
 app.dependency_overrides[get_session] = get_mock_session
 
@@ -89,6 +90,7 @@ def test_get_all_posts(test_post_data):
     )
 
     os.remove(settings.test_database_path)
+    cache.clear()
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == post_count
 
@@ -113,8 +115,8 @@ def test_delete_post(test_post_data):
     all_post = client.get(
         '/posts'
     )
-
     os.remove(settings.test_database_path)
+    cache.clear()
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert len(all_post.json()) == 3
 

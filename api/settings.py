@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     test_database_path: str = os.path.join(
         str(base_dir) + '/tests/test_db.sqlite3'
     )
+    hunter_api_key: str
+    cache_default: int = 1800
 
 
 settings = Settings(_env_file='.env', _env_file_encoding='utf-8')

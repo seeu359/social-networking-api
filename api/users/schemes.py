@@ -15,11 +15,13 @@ class BaseUser(BaseModel):
     def validate_name(cls, value: str):
 
         if not value.isalpha():
+
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail='First name and last name must contains only letters'
             )
         else:
+
             return value
 
 
@@ -43,3 +45,11 @@ class Token(BaseModel):
 
     access_token: str
     token_type: str = 'bearer'
+
+
+class ConstructUser(User):
+    """Model without check last_name and first_name"""
+
+    class Config:
+
+        orm_mode = True

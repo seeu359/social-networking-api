@@ -3,10 +3,11 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from loguru import logger
 from passlib.hash import bcrypt
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
+from loguru import logger
+import requests
 
 from api.db import Session, get_session
 from api.posts import models as post_models
@@ -61,6 +62,25 @@ class UserServices:
         return bcrypt.hash(password)
 
     @classmethod
+    def hunter_email_verify(cls, email: str) -> None:
+        """
+                Verify email by hunter.io service
+                """
+        hunter_api_url = 'https://api.hunter.io/v2/email-verifier?' \
+                         'email={}&api_key={}'.format(email,
+                                                      settings.hunter_api_key)
+
+        response = requests.get(hunter_api_url).json()
+        _status = response['data']['status']
+        logger.info(_status)
+
+        if _status == 'invalid' or _status == 'disposable':
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail='The email entered does not exist or is temporary'
+            )
+
+    @classmethod
     def create_jwt_token(cls, user_data: models.User) -> schemes.Token:
 
         user = schemes.User.from_orm(user_data)
@@ -96,6 +116,7 @@ class UserServices:
         self.session.commit()
 
     def create_user(self, user_data: schemes.CreateUser) -> schemes.Token:
+        self.hunter_email_verify(user_data.email)
 
         user = models.User(
             first_name=user_data.first_name,

@@ -17,11 +17,11 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED
 )
 def create_user(
-        user: schemes.CreateUser,
+        user_data: schemes.CreateUser,
         user_services: UserServices = Depends()
 ) -> schemes.Token:
 
-    return user_services.create_user(user)
+    return user_services.create_user(user_data)
 
 
 @router.post(
