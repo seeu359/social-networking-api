@@ -3,12 +3,12 @@ import os
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from api.cache import cache
 from api.db import get_session
 from api.main import app
 from api.settings import settings
 from api.users.services import get_current_user
 from tests.conftest import MockValidUser, MockValidUser2, get_mock_session
-from api.cache import cache
 
 app.dependency_overrides[get_session] = get_mock_session
 

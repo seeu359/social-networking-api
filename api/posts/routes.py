@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from api.posts import schemes
 from api.posts.services import PostService
-from api.users.schemes import User, ConstructUser
+from api.users.schemes import ConstructUser, User
 from api.users.services import get_current_user
 
 router = APIRouter(

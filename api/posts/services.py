@@ -1,12 +1,13 @@
-from loguru import logger
 from fastapi import Depends, HTTPException, status
+from loguru import logger
 from sqlalchemy import or_
 
+from api.cache import cache
 from api.db import Session, get_session
 from api.posts import models, schemes
+from api.settings import settings
 from api.users.models import User as UserDB
 from api.users.schemes import ConstructUser
-from api.cache import cache
 
 
 class PostService:
@@ -105,7 +106,7 @@ class PostService:
             post, post.likes_count(), post.dislikes_count()
         ) for post in posts]
 
-        cache.set('posts', posts, 60)
+        cache.set('posts', posts, settings.cache_default)
         logger.info('set cache and return data from db')
         return posts
 
@@ -254,7 +255,10 @@ class PostService:
         ).all()
 
         users_schemes = [ConstructUser.from_orm(user) for user in users]
-        cache.set('post{}_likes'.format(post_id), users_schemes, 60)
+        cache.set(
+            'post{}_likes'.format(post_id), users_schemes,
+            settings.cache_default
+        )
         logger.info('set data to cache and return data from db')
 
         return users_schemes
@@ -272,7 +276,10 @@ class PostService:
         ).all()
 
         users_schemes = [ConstructUser.from_orm(user) for user in users]
-        cache.set('post{}_dislikes'.format(post_id), users_schemes, 1000)
+        cache.set(
+            'post{}_dislikes'.format(post_id), users_schemes,
+            settings.cache_default
+        )
 
         logger.info('set data to cache and return data from db')
         return users_schemes

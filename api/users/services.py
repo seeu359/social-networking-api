@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
+import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
+from loguru import logger
 from passlib.hash import bcrypt
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
-from loguru import logger
-import requests
 
 from api.db import Session, get_session
 from api.posts import models as post_models
