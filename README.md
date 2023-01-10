@@ -8,15 +8,14 @@
 ---
 ### Description
 
+Test task for webtronics. Simple API for social network written by FastAPI. It is possible to register and authenticate by JWT token, 
+CRUD for posts, and give posts likes and dislikes
+
 > API - https://social-networking-api-production.up.railway.app/
 
 > SwaggerUI - https://social-networking-api-production.up.railway.app/docs
 
 > ReDoc - https://social-networking-api-production.up.railway.app/redoc 
-
-
-Test task for webtronics. Simple API for social network written by FastAPI. It is possible to register and authenticate by JWT token, 
-CRUD for posts, and give posts likes and dislikes
 
 ---
 ### Installation
