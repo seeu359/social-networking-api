@@ -412,14 +412,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
-name = "pycrypto"
-version = "2.6.1"
-description = "Cryptographic modules for Python."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "pycryptodome"
 version = "3.16.0"
 description = "Cryptographic library for Python"
