@@ -39,7 +39,7 @@ def login_user(
 ) -> schemes.Token:
 
     """If authenticated success, response will contain access_token which can
-     be used to access routes that require authentication"""
+     be used to access routes that require authorization"""
 
     return user_service.authenticate_user(
         form_data.username,
@@ -56,7 +56,7 @@ def get_self_user(
         user: schemes.User = Depends(get_current_user)
 ) -> schemes.User:
     """
-    *Authenticated required
+    *Authorization required
 
     Display data of the logged user
     """

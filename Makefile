@@ -10,8 +10,11 @@ lint:
 test:
 	poetry run pytest tests
 
-install:
+p_install:
 	poetry install
+
+install:
+	pip install -r requirements.txt
 
 test-coverage:
 	poetry run pytest --cov=api tests/ --cov-report xml

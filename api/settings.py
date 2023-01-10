@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     secret_key: str
     algorithm: str = 'HS256'
-    expiration: int = 5000
+    expiration: int = 24
     base_dir: Path = Path(__file__).resolve().parent.parent
     database_url: str
     test_database_url: str = 'sqlite:///' + os.path.join(
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     test_database_path: str = os.path.join(
         str(base_dir) + '/tests/test_db.sqlite3'
     )
-    hunter_api_key: str
+    hunter_api_key: str | None = None
     cache_default: int = 1800
 
 

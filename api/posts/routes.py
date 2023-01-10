@@ -130,7 +130,7 @@ def like(
         post_service: PostService = Depends(),
 ) -> schemes.Post:
     """
-    *Authenticated required
+    *Authorization required
 
     Request must contain header "Authorization: Bearer {your JWT Token}"
 
@@ -154,7 +154,7 @@ def dislike(
         post_service: PostService = Depends(),
 ):
     """
-    *Authenticated required
+    *Authorization required
 
     Request must contain header "Authorization: Bearer {your JWT Token}"
 
@@ -179,7 +179,7 @@ def post_likes(
 ) -> list[ConstructUser] | list:
 
     """
-    *Authenticated required
+    *Authorization required
 
     Request must contain header "Authorization: Bearer {your JWT Token}"
 
@@ -200,7 +200,7 @@ def post_dislikes(
         post_service: PostService = Depends(),
 ) -> list[ConstructUser] | list:
     """
-    *Authenticated required
+    *Authorization required
 
     Request must contain header "Authorization: Bearer {your JWT Token}"
 

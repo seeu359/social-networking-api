@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from api.posts.routes import router as posts_router
 from api.users.routes import router as users_router
 
-
 app = FastAPI(
     title='Webtronics-social-network',
     description='Test task for webtronics. '

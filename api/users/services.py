@@ -66,6 +66,9 @@ class UserServices:
         """
         Verify email by hunter.io service
         """
+        if not settings.hunter_api_key:
+            return
+
         hunter_api_url = 'https://api.hunter.io/v2/email-verifier?' \
                          'email={}&api_key={}'.format(email,
                                                       settings.hunter_api_key)
@@ -88,7 +91,7 @@ class UserServices:
         time_now = datetime.utcnow()
 
         payload = {
-            'exp': time_now + timedelta(seconds=settings.expiration),
+            'exp': time_now + timedelta(hours=settings.expiration),
             'sub': str(user.id),
             'nbf': time_now,
             'iat': time_now,
