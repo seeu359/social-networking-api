@@ -21,6 +21,7 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
         run: |
             make test
             make lint
