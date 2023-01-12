@@ -109,6 +109,20 @@ Responses codes:
 
 ``401`` - Not authenticated
 
+``*GET '/users/?username={value}`` - Find user by username. Entered username must be different with yours.
+
+Queries:
+
+``username``
+
+Response codes:
+
+``200`` - Success
+
+``400`` - Username matches with yours
+
+``404`` - User was not found
+
 #### Posts
 
 ``*GET /posts`` - Response contains all posts which field ``hidden`` is False

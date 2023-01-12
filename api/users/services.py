@@ -164,3 +164,25 @@ class UserServices:
             raise exception
 
         return self.create_jwt_token(user)
+
+    def get_user(self, self_username, username: str) -> schemes.ConstructUser:
+
+        if self_username == username:
+
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Entered username must be different from yours',
+            )
+
+        user = self.session.query(models.User).where(
+            models.User.username == username
+        ).first()
+
+        if not user:
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User was not found"
+            )
+
+        return schemes.ConstructUser.from_orm(user)

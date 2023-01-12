@@ -45,3 +45,31 @@ def test_create_user(mock_create_user_data, mock_create_user_data2):
     os.remove(settings.test_database_path)
     assert user1.status_code == status.HTTP_201_CREATED
     assert user2.status_code == status.HTTP_201_CREATED
+
+
+def test_find_user(mock_create_user_data, mock_create_user_data2):
+
+    app.dependency_overrides[get_session] = get_mock_session
+
+    app.dependency_overrides[get_current_user] = MockValidUser
+
+    client.post(
+        '/users/create',
+        json=mock_create_user_data,
+    )
+    client.post(
+        '/users/create',
+        json=mock_create_user_data2,
+    )
+
+    response1 = client.get(
+        '/users/?username=testuser',
+    )
+
+    response2 = client.get(
+        '/users/?username=testuser2',
+    )
+
+    os.remove(settings.test_database_path)
+    assert response1.json()['first_name'] == 'Alex'
+    assert response2.json()['first_name'] == 'John'

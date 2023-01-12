@@ -50,7 +50,7 @@ def login_user(
 @router.get(
     path='/me',
     response_model=schemes.User,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 def get_self_user(
         user: schemes.User = Depends(get_current_user)
@@ -62,3 +62,24 @@ def get_self_user(
     """
 
     return user
+
+
+@router.get(
+    path='/',
+    response_model=schemes.ConstructUser,
+    status_code=status.HTTP_200_OK,
+)
+def find_users(
+        user: schemes.User = Depends(get_current_user),
+        user_service: UserServices = Depends(),
+        username: str = None,
+) -> schemes.ConstructUser:
+
+    """
+    *Authorization required
+
+    Find user by username. Entered username must be different with yours.
+    Otherwise will be raised error and return status code 400
+    """
+
+    return user_service.get_user(user.username, username)
