@@ -186,3 +186,15 @@ class UserServices:
             )
 
         return schemes.ConstructUser.from_orm(user)
+
+    def get_all_users(self) -> list[schemes.ConstructUser] | list:
+
+        users = self.session.query(models.User).\
+            where(
+            models.User.hidden == False  # noqa: E712
+        ).all()
+
+        if not users:
+            return list()
+
+        return [schemes.ConstructUser.from_orm(user) for user in users]

@@ -66,10 +66,23 @@ def get_self_user(
 
 @router.get(
     path='/',
+    response_model=list[schemes.ConstructUser],
+    status_code=status.HTTP_200_OK,
+)
+def get_users(
+        user: schemes.User = Depends(get_current_user),
+        user_service: UserServices = Depends(),
+) -> list[schemes.ConstructUser]:
+
+    return user_service.get_all_users()
+
+
+@router.get(
+    path='/{username}',
     response_model=schemes.ConstructUser,
     status_code=status.HTTP_200_OK,
 )
-def find_users(
+def find_user(
         user: schemes.User = Depends(get_current_user),
         user_service: UserServices = Depends(),
         username: str = None,

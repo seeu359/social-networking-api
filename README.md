@@ -109,11 +109,22 @@ Responses codes:
 
 ``401`` - Not authenticated
 
-``*GET '/users/?username={value}`` - Find user by username. Entered username must be different with yours.
+``*GET /users`` - Response contains all registered users which ``hidden`` field is False
 
-Queries:
+Responses codes:
 
-``username``
+``200`` - Success
+
+``401`` - Not authenticated
+
+Responses codes:
+
+``200`` - Success
+
+``401`` - Not authenticated
+
+``*GET '/users/{username}`` - Find user by username. Entered username must be different with yours.
+
 
 Response codes:
 

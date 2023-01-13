@@ -63,13 +63,35 @@ def test_find_user(mock_create_user_data, mock_create_user_data2):
     )
 
     response1 = client.get(
-        '/users/?username=testuser',
+        '/users/testuser',
     )
 
     response2 = client.get(
-        '/users/?username=testuser2',
+        '/users/testuser2',
     )
 
     os.remove(settings.test_database_path)
     assert response1.json()['first_name'] == 'Alex'
     assert response2.json()['first_name'] == 'John'
+
+
+def test_find_all_users(mock_create_user_data, mock_create_user_data2):
+    app.dependency_overrides[get_session] = get_mock_session
+
+    app.dependency_overrides[get_current_user] = MockValidUser
+
+    client.post(
+        '/users/create',
+        json=mock_create_user_data,
+    )
+    client.post(
+        '/users/create',
+        json=mock_create_user_data2,
+    )
+
+    response = client.get(
+        '/users'
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 2
